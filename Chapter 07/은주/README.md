@@ -22,6 +22,11 @@ inputStream.read(...); // 입력스트림으로 데이터 수신
 > ✅ **톰캣**
 > - 기본적으로 멀티 스레드 모델로 구현됨
 >   - 즉, **각 사용자 요청을 1개의 스레드가 처리**하는 thread-per-request 방식으로 동작
+> - NIO 기반의 톰캣 동작 방식 -> 추가 필요
 > - Thread 의 Idle 상태를 줄이기 위해 EventLoop 방식의 Reactive Programming이 개발됨
 > 
 > ✅ **thread-per-request vs. event loop**
+
+## 가상 스레드로 자원 효율 높이기
+- CPU 효율을 높이기 위한 방법 : 가상스레드 (자바), 고루틴 (Go) => `경량 스레드`
+- 경량 스레드 : OS 가 관리하는 스레드가 아니라, JVM 과 같은 **언어의 런타임이 관리하는 스레드**
