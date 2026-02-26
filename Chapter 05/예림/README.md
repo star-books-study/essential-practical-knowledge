@@ -90,3 +90,20 @@
   - 실제 업무 로직에 필요한 DB 변경 작업 수행
   - 메시지 데이터를 아웃박스 테이블에 추가
 - 아웃박스에 쌓인 데이터는 중계 프로세스가 주기적으로 읽어서 메시징 시스템에 전달
+- 데이터 유실 위험 x
+- 트랜잭션 롤백 시 메시지 데이터도 롤백
+- 코드
+  ```java
+  public void processMessages() {
+  // 아웃 박스 테이블에서 대기 중인 메시지 조회
+  List<MessageData> waitingMessages = selectWaitingMessages();
+  for (MessageData m : waitingMessages) {
+    try {
+      sendMessage(m);
+      makeDone(m.getId()); // 발송 완료 표시
+    } catch (Exception ex) {
+      handleError(ex);
+      break;
+    }
+  }
+  ```
