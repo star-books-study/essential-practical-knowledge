@@ -96,14 +96,16 @@
   ```java
   public void processMessages() {
   // 아웃 박스 테이블에서 대기 중인 메시지 조회
-  List<MessageData> waitingMessages = selectWaitingMessages();
-  for (MessageData m : waitingMessages) {
-    try {
-      sendMessage(m);
-      makeDone(m.getId()); // 발송 완료 표시
-    } catch (Exception ex) {
-      handleError(ex);
-      break;
+    List<MessageData> waitingMessages = selectWaitingMessages();
+    for (MessageData m : waitingMessages) {
+      try {
+        sendMessage(m);
+        makeDone(m.getId()); // 발송 완료 표시
+      } catch (Exception ex) {
+        handleError(ex);
+        break;
+      }
     }
   }
   ```
+- 툭정 메시지 전송 실패 시 루프를 멈추는 이유 : 순서대로 발송하기 위해
