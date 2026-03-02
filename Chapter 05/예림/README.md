@@ -112,3 +112,14 @@
 - 발송 완료 표시하는 방법 2가지
   - 아웃박스 테이블에 발송 완료 칼럼 두고 발송하면 상태 변경
   - 메시지 중계 서비스가 성공적으로 발송한 마지막 메시지 ID를 기록해두고 다음 번 메시지는 이 다음 메시지 선택
+### 아웃박스 테이블 구조
+- id
+- messageId
+- messageType - 메시지 종류를 구분하기 위헤서 사용 (ex. LoginFailed, OrderPlaced)
+- payload
+- status - 대기, 완료, 실패
+- failCount
+- occuredAt
+- processedAt
+- failedAt
+
