@@ -19,4 +19,32 @@ public class PayService {
   public PayResp pay(PayRequest req) {
     ...
     this.payId = getPayId(); // 단계 1
+    saveTemp(this.payId, req); // 단계 2
+    PayResp resp = sendPayData(this.payId, ...); // 단계 3
+    applyResponse(resp); // 단계 4
+    return resp;
+  }
+
+  public void applyResponse(PayResp resp) {
+    PayData payData = createPayDataFromResp(resp); // 단계 4-1
+    updatePayData(this.payId, payData); // 단계 4-2
+}
 ```
+- PayService가 싱글톤 객체라면 다중 스레드 환경에서 단계 1 payId 값과 단계 4-2 payId 값이 다를 수 있다.
+  - 다음 스레드가 payId 값을 덮어쓸 수 있음
+- DB 또한 동시성을 고려하지 않으면 데이터 일관성에 문제가 생길 수 있다.
+- 관리자와 고객이 동시에 주문 정보를 변경할 때
+  - 관리자는 주문 상태를 `배송`으로 변경하고 고객은 같은 주문을 `춰소`
+  - DB 관점에서는 주문을 취소 상태로 변경 후 배송 상태로 변경하는 상황이 생길 수 있음
+
+## 프로세스 수준에서의 동시 접근 제어
+### lock을 이용한 접근 제어
+1. 잠금 획득
+2. 공유 자원에 접근 (임계 영역)
+3. 잠금 해제
+
+- ReentrantLock을 사용해 동시에 HashMap을 수정하는 것을 막는 코드
+  ```java
+  
+
+  ```
