@@ -13,3 +13,10 @@
 - 동시성 문제는 미묘해서 재현이 안되는 경우가 많으므로 염두에 두고 개발하는 것이 필요
 
 ## 잘못된 데이터 공유로 인한 문제 예시
+```java
+public class PayService {
+  ...
+  public PayResp pay(PayRequest req) {
+    ...
+    this.payId = getPayId(); // 단계 1
+```
