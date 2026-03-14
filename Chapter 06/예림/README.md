@@ -45,6 +45,53 @@ public class PayService {
 
 - ReentrantLock을 사용해 동시에 HashMap을 수정하는 것을 막는 코드
   ```java
-  
+  public class UserSessions {
+    private Lock lock = new ReentrantLock();
+    private Map<String, UserSession> sessions = new HashMap<>(); // ExecutorService를 생성
+    // ExecutorService는 동시에 500개 작업을 실행할 수 있다.
 
+    public void addUserSession(UserSession session) {
+      lock.lock(); // 잠금 획득할 때까지 대기
+      try {
+        sessions.put(session.getSessionId(), session); // 공유 자원 접근
+      } finally {
+        lock.unlock(); // 잠금 해제
+      }
+    }
+
+    public UserSession getUserSession(String sessionId) {
+      lock.lock();
+      try {
+        return sessions.get(sessionId);
+      } finally {
+        // 1000개의 Usersession 객체를 UserSessions에 추가한다
+        int sessionCount = 1_000;
+        for (int i = 0; i <= sessionCount; i++) {
+          String sessionId = "session-" + i;
+          Future<?> future = executor.submit(() -> {
+            UserSession userSession = new UserSession(sessionId);
+            userSessions.addUserSession(userSession);
+          });
+          futures.add(future);
+        }
+        futures.forEach(f -> {
+          try {
+            f.get();
+          } catch (Exception e) {
+            log.error("error", e);
+          }
+        });
+
+        executor.shutDown();
+
+        for(int i = 1; i <= sessionCount; i++) {
+          String sessionId = "session-" + i;
+          UserSession userSession = userSessions.getUserSession(sessionId);
+          assertThat(userSession)
+            .describeAs("session %s", sessionId);
+            .isNotNull();
+        }
+      }
+    }
+  }
   ```
