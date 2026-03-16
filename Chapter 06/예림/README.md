@@ -97,4 +97,14 @@ public class PayService {
     }
   }
   ```
+- 만약 lock 없이 sessions.put()를 실행하면 누락되는 객체가 생겨 테스트 
+- ReentrantLock은 한 번에 한 스레드만 lock을 구할 수 있음
+  - 나머지 스레드는 대기 필요
+> mutex는 mutual exclusion의 줄임말로 lock이라 하기도 함
+> java는 Lock 타입을 사용하고 Go는 Mutex 타입을 사용
+### 세마포어
+- 동시에 실행할 수 있는 스레드 수를 제한
+- 자원에 대한 접근을 일정 수준으로 제한하고 싶을 때 사용
+- 허용 가능한 숫자를 이용하여 생성
+  - 이 숫자를 java에서는 permit, Go에서는 weight이라 함
 
