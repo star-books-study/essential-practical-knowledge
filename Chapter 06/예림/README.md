@@ -68,12 +68,13 @@ public class PayService {
         int sessionCount = 1_000;
         for (int i = 0; i <= sessionCount; i++) {
           String sessionId = "session-" + i;
-          Future<?> future = executor.submit(() -> {
+          Future<?> future = executor.submit(() -> { // 500개 스레드를 이용해 동시에 실행
             UserSession userSession = new UserSession(sessionId);
             userSessions.addUserSession(userSession);
           });
           futures.add(future);
         }
+        // 1000개의 작업이 끝날 때까지 대기
         futures.forEach(f -> {
           try {
             f.get();
@@ -84,6 +85,7 @@ public class PayService {
 
         executor.shutDown();
 
+        // 검증
         for(int i = 1; i <= sessionCount; i++) {
           String sessionId = "session-" + i;
           UserSession userSession = userSessions.getUserSession(sessionId);
@@ -95,3 +97,4 @@ public class PayService {
     }
   }
   ```
+
