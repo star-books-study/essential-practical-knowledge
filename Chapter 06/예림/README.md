@@ -111,3 +111,30 @@ public class PayService {
   - 세마포어에서 퍼밋 획득 (허용 가능 숫자 1 감소)
   - 코드 실행
   - 세마포어에 퍼밋 반환 (허용 가능 숫자 1 증가)
+- 퍼밋 개수가 0이면 대기
+> 세마포어에서 퍼밋을 구하고 반환하는 연산을 각각 P(wait) 연산, V(signal) 연산이라고 함
+
+- 코드 예시
+  ```java
+  public class MyClient {
+    private Semaphore semaphore = new Semaphore(5);
+
+    public String getData() {
+      try {
+        semaphore.acquire(); // 퍼밋 획득 시도
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+      try {
+        String data = ...; // 외부 연동 코드
+        return data;
+      } finally {
+        semaphore.release(); // 퍼밋 반환
+      }
+    }
+  }
+  ```
+- 세마포어 특징
+  - 
+- lock을 사용하면 한 번에 한 스레드만 읽기 기능을 실행할 수 있기 때문에 동시에 읽기가 안되지만,
+ 세마포어는 한 번에 여러 스레드가 읽기 가능 
