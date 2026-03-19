@@ -134,7 +134,37 @@ public class PayService {
     }
   }
   ```
-- 세마포어 특징
-  - 
-- lock을 사용하면 한 번에 한 스레드만 읽기 기능을 실행할 수 있기 때문에 동시에 읽기가 안되지만,
- 세마포어는 한 번에 여러 스레드가 읽기 가능 
+- 읽기 쓰기 잠금 특징
+  - 쓰기 잠금은 한 번에 한 스레드만
+  - 읽기 잠금은 한 번에 여러 스레드 가능
+  - 한 스레드가 쓰기 잠금을 획득하면 쓰기 잠금 해제될 때까지 읽기 잠금 획득 불가
+  - 읽기 잠금을 획득한 모든 스레드가 읽기 잠금 해제할 때까지 쓰기 잠금 획득 불가
+- 코드 예시
+  ```java
+  public class UserSessionRw {
+    private ReadWriteLock lock = new ReentrantReadWriteLock();
+    private Lock writeLock = lock.writeLock();
+    private Lock readLock = lock.readLock();
+    private Map<String, UserSession> sessions = new HashMap<>();
+
+    public void addUserSession(UserSession session) {
+      writeLock.lock(); 
+      try {
+        sessions.put(session.getSessionId(), session); // 공유 자원 접근
+      } finally {
+        writeLock.unlock();
+      }
+    }
+    
+    public UserSession getUserSession(String sessionId) {
+      readLock.lock();
+      try {
+        return sessions.get(sessionId);
+      } finally {
+        return readLick.unlock();
+      }
+    }
+  }
+  ```
+
+
