@@ -166,5 +166,34 @@ public class PayService {
     }
   }
   ```
+### 원자적 타입
+- 스레드가 동시에 데이터를 변경할 때 발생하는 문제를 잠금을 활용하면 다음과 같이 해결할 수 있다
+- lock 사용 전
+  ```java
+  public class Increaser {
+    private int count = 0;
+
+    public void inc() {
+      count = count + 1;
+    }
+  }
+  ```
+- lock 사용 후
+  ```java
+  public class Increaser {
+    // lock 선언
+    private int count = 0;
+
+    public void inc() {
+      lock.lock();
+      try {
+        count = count + 1;
+      } finally {
+        lock.unlock();
+      }
+    }
+  }
+  ```
+- 하지만 이렇게 하면 CPU 효율이 떨어짐
 
 
