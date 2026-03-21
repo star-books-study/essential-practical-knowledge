@@ -196,4 +196,6 @@ public class PayService {
   ```
 - 하지만 이렇게 하면 CPU 효율이 떨어짐
 
+- lock을 사용하지 않으면서 동시성 문제 없이 카운터 구현하는 방법 : 원자적 타입
+- 자바 언어로는 AtomicInteger, AtomicLong, AtomicBoolean
 
