@@ -198,4 +198,32 @@ public class PayService {
 
 - lock을 사용하지 않으면서 동시성 문제 없이 카운터 구현하는 방법 : 원자적 타입
 - 자바 언어로는 AtomicInteger, AtomicLong, AtomicBoolean
+```java
+public class Increaser {
+  private AtomicInteger count = new AtomicInteger(0);
 
+  public void inc() {
+    count.incrementCountAndGet(); // 다중 스레드 문제 없이 값을 1 증가 시킴
+  }
+}
+```
+- AtomicInteger은 내부적으로 CAS 연산 사용
+  - Compare and Swap
+- 내부 구현은 복잡하지만 lock보다 간단하게 동시성 문제 해결
+### 동시성 지원 컬렉션
+- 데이터를 변경하는 모든 연산에 lock 적용하도록 제한
+- 자바 Collections 클래스는 동기화된 컬렉션을 생성하는 메서드 제공
+
+```java
+Map<String, String> map = new HashMap<>();
+// 동기화된 컬렉션 객체 생성
+Map<String, String> syncMap = Collections.syncronizedMap(map);
+syncMap.put("key1", "value1"); // put 메서드는 내부적으로 synchronized로 처리됨
+
+```
+- 또 다른 방법 : 동시성 자체를 지원하는 컬렉션 타입 사욜
+
+```java
+ConcurrentMap<String, String> map = new ConcurrentMap<>();
+map.put("key1", "value1"); // 동시성 지원 컬렉션은 동시성 지원 범위를 최소화한다
+```
