@@ -227,3 +227,5 @@ syncMap.put("key1", "value1"); // put 메서드는 내부적으로 synchronized�
 ConcurrentMap<String, String> map = new ConcurrentMap<>();
 map.put("key1", "value1"); // 동시성 지원 컬렉션은 동시성 지원 범위를 최소화한다
 ```
+
+## DB와 동시성
