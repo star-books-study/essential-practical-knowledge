@@ -273,3 +273,11 @@ for update
 update SUBJECT set joinCount = joinCount + 1 where id = ?
 ```
 - DB는 이를 원자적 연산으로 처리
+
+## 잠금 사용 시 주의 사항
+### 잠금 해제하기
+- 잠금을 획득한 후에는 꼭 해제하기 (무한 대기 방지)
+- 습관적으로 try-finally 구조를 사용해라
+
+### 대기 시간 지정하기
+
