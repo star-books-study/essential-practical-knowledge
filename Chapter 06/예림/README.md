@@ -280,4 +280,6 @@ update SUBJECT set joinCount = joinCount + 1 where id = ?
 - 습관적으로 try-finally 구조를 사용해라
 
 ### 대기 시간 지정하기
+- 잠금 획득할 때까지 대기해야 하므로 동시 접근 요청이 많이 오면 대기 시간이 길어짐
+- 해결 방법 중 하나는 **대기 시간을 지정**하는 것
 
