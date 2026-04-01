@@ -282,4 +282,13 @@ update SUBJECT set joinCount = joinCount + 1 where id = ?
 ### 대기 시간 지정하기
 - 잠금 획득할 때까지 대기해야 하므로 동시 접근 요청이 많이 오면 대기 시간이 길어짐
 - 해결 방법 중 하나는 **대기 시간을 지정**하는 것
-
+```java
+boolean acquired = lock.tryLock(5, TimeUnit.SECONDS);
+if(!acquired) { // 런타임 예외 던지기 }
+// 잠금 획득 성공
+try {
+  // 자원 접근 코드 실행
+} finally {
+  lock.unlock();
+}
+```
