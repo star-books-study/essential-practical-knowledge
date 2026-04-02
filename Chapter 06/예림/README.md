@@ -284,11 +284,27 @@ update SUBJECT set joinCount = joinCount + 1 where id = ?
 - 해결 방법 중 하나는 **대기 시간을 지정**하는 것
 ```java
 boolean acquired = lock.tryLock(5, TimeUnit.SECONDS);
-if(!acquired) { // 런타임 예외 던지기 }
+if(!acquired) {
+  throw new RunTimeException("Failed to acquire lock");
+}
 // 잠금 획득 성공
 try {
   // 자원 접근 코드 실행
 } finally {
   lock.unlock();
 }
+```
+- 대기 시간 없이 반환하고 싶으면
+```java
+lock.tryLock();
+```
+### deadlock 피하기
+한 자원에서 다른 자원으로 용량을 전송하는 코드를 구현한다고 할 때, 다음과 같이 두 자원의 잠금이 필요
+```
+자원 A 잠금 획득
+자원 B 잠금 획득
+자원 A 용량 감소
+자원 B 용량 증가
+자원 A 잠금 해제
+자원 B 잠금 해제
 ```
