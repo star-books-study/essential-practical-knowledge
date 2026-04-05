@@ -315,3 +315,13 @@ lock.tryLock();
 
 ## 단일 스레드로 실행하기
 - 한 스레드만 자원에 접근하도록 하면 동시성 문제를 피할 수 있다
+- 각 스래드는 작업 큐에 필요한 작업만 추가할 뿐 직접 상태에 접근하지 못하고 상태 관리 스레드만 큐에서 작업을 꺼내 데이터 처리 수행
+
+```java
+while (running) {
+  // 한 스레드만 작업 큐에서 꺼내 실행
+  Job job = jopQueue.poll(1, TimeUnit.SECONDS);
+  if (job == null) {
+    continue;
+  }
+```
