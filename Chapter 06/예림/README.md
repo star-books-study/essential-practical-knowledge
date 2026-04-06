@@ -324,4 +324,14 @@ while (running) {
   if (job == null) {
     continue;
   }
+  // job 종류에 따라 상태 처리
+  while (job.getType()) {
+    case INC:
+      // modifyState()는 한 스레드만 접근하므로 상관 없다
+      obj.modifyState();
+      break(
+    // ... 다른 작업
+    }
+    // ...
+  }
 ```
