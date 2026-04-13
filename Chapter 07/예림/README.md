@@ -7,3 +7,4 @@
 outputStream.write(...); // 출력 스트림으로 데이터 보내기
 inputStream.read(...); // 입력 스트림으로 데이터 받기
 ```
+- 입출력(IO)를 하는 동안 스레드는 대기한다
