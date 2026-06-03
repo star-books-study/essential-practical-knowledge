@@ -62,3 +62,11 @@ inputStream.read(...); // 입력 스트림으로 데이터 받기
 - channel.read() : 데이터를 읽을 때까지 대기하지 않는다
     - 읽을 데이터가 없으면 바로 0을 리턴
 > 데이터를 읽을 때까지 대기하는 블로킹 IO와는 다르다
+
+```java
+// channel : SocketChannel, buffer : ByteBuffer
+int byteReads = channel.read(buffer);
+// 읽은 데이터가 없어도 다음 코드 계속 실행
+```
+- 데이터를 조회했다는 가정 하에 코드를 짤 수는 없음
+- 대신에 루프 안에 조회를 반복 호출하고 데이터를 읽었을 때만 처리하는 방식으로 구현 가능
