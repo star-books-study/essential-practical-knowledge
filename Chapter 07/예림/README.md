@@ -70,3 +70,58 @@ int byteReads = channel.read(buffer);
 ```
 - 데이터를 조회했다는 가정 하에 코드를 짤 수는 없음
 - 대신에 루프 안에 조회를 반복 호출하고 데이터를 읽었을 때만 처리하는 방식으로 구현 가능
+```java
+// CPU 낭비가 심한 방식
+while (true) {
+    int byteReads = channel.read(buffer);
+    if (byteReads > 0) {
+        handleData(channel, buffer);
+    }
+}
+```
+- 대신에 CPU 낭비가 심함 (while 루프 무한 실행)
+- 실제로 논블로킹 IO를 사용할 때는 어떤 연산 수행할 수 있는지 확인하고 해당 연산을 실행하는 방식으로 구현함
+
+```java
+while (true) {
+    selector.select(); // 가능한 IO 연산이 있을 때까지 대기
+    Set<SelecionKey> iterator = selectedKeys.iterator();
+    while (iterator.hasNext()) { // IO 연산 순회
+        SelectionKey key = iterator.next();
+        ... // key 타입에 따라 알맞은 처리
+        }
+    }
+}
+```
+- 핵심은 `Selector`
+- `select` 메서드는 IO 처리가 가능한 연산이 존재할 때까지 대기함
+    - 이 메서드가 리턴하면 수행할 수 있는 연산이 존재하는 것임
+- `selectedKeys` 메서드는 실행 가능한 연산 목록 조회
+- 논블로킹 IO는 클라이언트 수에 상관 없이 소수의 스레드를 사용 함
+- 논블로킹 IO에서 동시성을 높이기 위해서는 **채널을 N개 그룹으로 나누고 각 그룹마다 생성**
+    - 보통 CPU 개수 만큼 그룹을 나누고 각 그룹마다 입출력을 처리할 스레드를 할당함
+### 리액터 패턴
+- 리액터 패턴 : 동시에 들어오는 여러 이벤트를 처리하기 위한 이벤트 처리 방법
+- 리액터와 핸들러 두 요소로 구성
+    - `리액터`는 이벤트가 발생할 때까지 대기하다가 이벤트가 발생하면 핸들러에 이벤트 전달
+    - `핸들러`는 필요한 로직 수행
+```java
+while (isRunning) {
+    List<Event> events = getEvents(); // 이벤트가 발생할 때까지 대기
+    for (Event event : events) {
+        Handler handler = getHandler(event); // 이벤트를 처리할 핸들러 구함
+        handler.handle(event); // 이벤트를 처리함
+    }
+}
+```
+- 논블로킹 IO에 기반한 Netty, Nginx, Node.js 등의 프레임워크나 서버는 리액터 패턴을 적용하고 있음
+- 한계
+    - 이벤트 루프는 단일 스레드로 실행되므로 처리량을 최대한 낼 수 없고 블로킹을 유발하는 연산을 수행하면 전체 이벤트 처리 시간이 그만큼 지연됨
+- 보완
+  - 핸들러나 블로킹 연산을 별도 스레드 풀에서 실행
+
+### 프레임워크 사용하기
+- 논블로킹 IO를 통해 데이터 처리 로직을 구현할 때 어려움이 있으면 API를 직접 사용하는 것보다는 프레임워크를 사용하는 걸 선호함
+
+### 논블로킹 / 비동기 IO와 성능
+- 논블로킹 IO를 사용하면 성능이 훨씬 좋아지는 것을 확인할 수 있음
