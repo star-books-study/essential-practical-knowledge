@@ -31,4 +31,69 @@
   - 서버의 별도 저장소
   - 토큰 자체에 저장
 
-#### 별도 저장소
+#### 별도 저장소에 토큰과 식별자 정보 저장하기
+- 별도 저장소는 DB나 레디스를 뜻함
+<img width="415" height="187" alt="스크린샷 2026-11-01 오후 11 49 35" src="https://github.com/user-attachments/assets/478b4755-dac2-41ad-90fe-012b8e079aa5" />
+
+- 토큰이 갖는 정보
+  - 토큰
+  - 사용자 식별자
+  - 생성 시간
+  - 최근 사용 시간
+  - 그 외 유효 시간, 클라이언트 버전 등 추가 데이터
+- 서버는 토큰을 이용해 **사용자 식별자**를 구함
+- 토큰은 크기가 크지 않아서 저장 용량 부담은 크게 없음. 레디스 같은 메모리 캐시를 사용해도 충분히 저장 가능 (너무 많아지면 DB에 저장해야 함)
+- 서버 메모리에도 저장할 수 있음
+  - 서블릿 세션
+    - 톰캣과 같은 서블릿 컨테이너는 메모리에 세션 객체를 저장함.
+    - 고유의 세션 ID를 생성 (이 세션 ID가 토큰에 해당)
+```java
+HttpSession session = request.getSession(false); // 세션을 구한다.
+if (session == null) { // 에러 처리하고..
+}
+
+// 세션에서 로그인한 사용자 데이터를 구한다
+UserSessionData data = (UserSessionData) session.getAttribute("userSessionData");
+if (data == null) {
+  throw new AuthenticationException();
+}
+```
+- 메모리에 토큰 데이터를 저장하는 방식을 사용할 때는 고정 세션 (sticky session)이 필요
+  - 서버마다 서로 다른 토큰 집합을 저장하고 있기 때문
+- 토큰을 메모리에 저장하는 방식의 단점 2가지
+  - 서버 재시작하면 토큰 사라짐
+  - 생성할 수 있는 세션 개수가 메모리 크기에 제한을 받음
+- 이런 단점 해소를 위해 세션 데이터를 별도 저장소에 보관하기도 함
+  - 스프링 세션은 메모리 대신 DB나 레디스에 저장
+    - 외부 저장소에 토큰을 저장하면서도 서블릿의 HttpSession을 그대로 사용 가능
+
+#### 토큰 자체에 사용자 식별자 정보 저장하기
+- 대표적인 게 JWT
+  - 로그인에 성공하면 사용자 식별자를 값으로 갖는 JWT를 생성해 클라이언트에 토큰으로 응답한다.
+```java
+String token = Jwts.builder()
+        .subject("userid") // 사용자 식별자
+        .signWith(key)
+        .compact();
+// 로그인 결과로 토큰 응답
+return LoginResponse.of(token);
+```
+```
+// 클라이언트가 전송한 토큰으로부터 사용자 식별자를 구함
+try {
+  Jwt<Claims> jwt = Jwts.parser().verifyWith(key).build().parseSignedClaims(jws);
+  // 토큰에서 사용자 식별자를 구한다
+  String userId = jwt.getPayload().getSubject();
+} catch (JwtException e) {
+  throw new AuthenticationException(e);
+}
+```
+- 장점
+  - 토큰만 있으면 사용자가 누구인지 확인할 수 있음.
+  - 별도의 외부 저장소에 저장할 필요가 없으므로 서버 구조가 간단함
+  - 메모리에 토큰 데이터를 저장하지 않아서 서버를 수평 확장하기도 쉬움
+- 단점
+  - 트래픽이 증가함. (토큰 안에 데이터가 추가되므로)
+    - 토큰에는 최소한의 필요한 데이터만 넣어야 함
+  - 토큰 데이터를 서버에서 제어할 수가 없음.
+    - 클라이언트에 전송된 토큰 데이터가 클라이언트에 저장되므로 서버에서 삭제하거나 변경할 수 없음. (그래서 유효 시간을 설정함!)
